@@ -8,6 +8,6 @@ package main;
  *
  * @author Nicolas
  */
-public enum Department {
-    MATH, SCIENCE, ARTS
+public class SchoolManager {
+    
 }
