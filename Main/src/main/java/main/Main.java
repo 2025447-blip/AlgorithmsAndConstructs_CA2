@@ -11,18 +11,14 @@ import java.util.Scanner;
  * @author Nicolas
  */
 public class Main {
-    
-    // Enum for menu options — studied in class
     private static enum MenuOption {
         SORT, SEARCH, ADD, HIERARCHY, EXIT
     }
     
-    // Data storage
     private static Employee[] employees = new Employee[100];
     private static int employeeCount = 0;
     private static BinaryTree schoolTree = new BinaryTree();
     
-    // Pre-defined school managers
     private static SchoolManager[] managers = {
         new SchoolManager("Dr. Smith", Department.MATH, "Principal"),
         new SchoolManager("Ms. Johnson", Department.SCIENCE, "VicePrincipal"),
@@ -48,12 +44,7 @@ public class Main {
         scanner.close();
     }
     
-    /**
-     * Loads 22 employees into the system.
-     * Cycles through Teacher, Student, Staff roles and
-     * three departments (MATH, SCIENCE, ARTS).
-     * Each employee is added to both the array and the binary tree.
-     */
+    // Pre-populates the system with sample employees and inserts them into the binary tree
     private static void prePopulateEmployees() {
         String[] names = {"John", "Mary", "Peter", "Anna", "Mike", "Sarah",
                           "David", "Emma", "James", "Lisa", "Robert", "Karen",
@@ -73,11 +64,7 @@ public class Main {
         System.out.println("Loaded " + names.length + " employees into the school system.");
     }
     
-    /**
-     * Shows the menu, reads user input, and returns the selected option.
-     * Uses try-catch for NumberFormatException validation.
-     * Recursively calls itself on invalid input (validates without crashing).
-     */
+    // Displays the menu and returns the chosen option
     private static MenuOption displayMenuAndGetChoice(Scanner scanner) {
         System.out.println("\n===== SCHOOL SYSTEM MENU =====");
         System.out.println("1 - Sort Employees");
@@ -106,21 +93,16 @@ public class Main {
         }
     }
     
-    /**
-     * Sorts employees by name using recursive QuickSort.
-     * Creates a copy of the array so the original stays unchanged.
-     */
+    // Sorts employees by name using quicksort and displays them
     private static void handleSort() {
         if (employeeCount == 0) {
             System.out.println("No employees to sort.");
             return;
         }
-        // Copy array to keep original order
         Employee[] sorted = new Employee[employeeCount];
         for (int i = 0; i < employeeCount; i++) {
             sorted[i] = employees[i];
         }
-        // Sort using recursive QuickSort
         SortingSearching.quickSort(sorted, 0, employeeCount - 1);
         
         System.out.println("\n===== SORTED EMPLOYEES (by name) =====");
@@ -129,15 +111,11 @@ public class Main {
         }
     }
     
-    /**
-     * Searches for an employee by name using recursive BinarySearch.
-     * The array must be sorted first, so we sort a copy before searching.
-     */
+    // Searches for an employee by name using binary search on a sorted copy
     private static void handleSearch(Scanner scanner) {
         System.out.print("Enter name to search: ");
         String name = scanner.nextLine().trim();
         
-        // Validate: name cannot be empty
         if (name.isEmpty()) {
             System.out.println("ERROR: Name cannot be empty.");
             return;
@@ -147,14 +125,12 @@ public class Main {
             return;
         }
         
-        // Copy and sort the array (binary search requires sorted data)
         Employee[] sorted = new Employee[employeeCount];
         for (int i = 0; i < employeeCount; i++) {
             sorted[i] = employees[i];
         }
         SortingSearching.quickSort(sorted, 0, employeeCount - 1);
         
-        // Search using recursive BinarySearch
         int index = SortingSearching.binarySearch(sorted, 0, employeeCount - 1, name);
         
         if (index == -1) {
@@ -164,13 +140,8 @@ public class Main {
         }
     }
     
-    /**
-     * Adds a new employee to the system.
-     * Validates: name not empty, role choice 1-3.
-     * Creates employee and adds to both array and binary tree.
-     */
+    // Adds a new employee: prompts for name, role, and department with validation
     private static void handleAdd(Scanner scanner) {
-        // Read and validate name
         System.out.print("Enter name: ");
         String name = scanner.nextLine().trim();
         if (name.isEmpty()) {
@@ -182,7 +153,6 @@ public class Main {
             return;
         }
         
-        // Read and validate role
         System.out.println("Select role:");
         System.out.println("1 - Teacher");
         System.out.println("2 - Student");
@@ -202,7 +172,6 @@ public class Main {
             return;
         }
         
-        // Map choice to role string
         String role;
         if (roleChoice == 1) {
             role = "Teacher";
@@ -212,18 +181,43 @@ public class Main {
             role = "Staff";
         }
         
-        // Assign to MATH department by default (for simplicity)
-        Employee emp = new Employee(name, role, "MATH");
+        // Department selection: prompt user to choose from MATH, SCIENCE, ARTS
+        System.out.println("Select department:");
+        System.out.println("1 - MATH");
+        System.out.println("2 - SCIENCE");
+        System.out.println("3 - ARTS");
+        System.out.print("Choose (1-3): ");
+        
+        String deptInput = scanner.nextLine().trim();
+        int deptChoice;
+        try {
+            deptChoice = Integer.parseInt(deptInput);
+            if (deptChoice < 1 || deptChoice > 3) {
+                System.out.println("ERROR: Choose 1-3 only.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("ERROR: Enter a number.");
+            return;
+        }
+        
+        String dept;
+        if (deptChoice == 1) {
+            dept = "MATH";
+        } else if (deptChoice == 2) {
+            dept = "SCIENCE";
+        } else {
+            dept = "ARTS";
+        }
+        
+        Employee emp = new Employee(name, role, dept);
         employees[employeeCount] = emp;
         employeeCount++;
         schoolTree.insert(emp);
         System.out.println("Employee added: " + emp);
     }
     
-    /**
-     * Displays the employee hierarchy tree in level-order (BFS).
-     * Shows how employees are organized in the binary tree.
-     */
+    // Displays the hierarchy of employees using level-order traversal of the binary tree
     private static void handleHierarchy() {
         System.out.println("\n===== EMPLOYEE HIERARCHY (Level-Order) =====");
         schoolTree.levelOrderTraversal();
